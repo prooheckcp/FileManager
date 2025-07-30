@@ -1,0 +1,30 @@
+{
+  "name": "@prooheckcp/file-manager",
+  "version": "0.0.3",
+  "description": "A wrapper for Nodes file system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "test": "npm run clean && tsc && node ./dist/index.js"
+  },
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "prooheckcp <vasco.soares.2001@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5"
+  }
+}
