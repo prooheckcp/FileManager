@@ -62,6 +62,7 @@ class Instance {
         return path.basename(this._Directory)
     }
 
+    // allow other instances as the target directory
     async Clone(targetDirectory?: string, overwrite?: boolean){
         targetDirectory = targetDirectory ? targetDirectory : this._Parent
         overwrite = overwrite != null ? overwrite : false
