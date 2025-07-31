@@ -6,7 +6,7 @@ import toml from "@iarna/toml"
 // Types
 import type { Stats } from 'fs';
 
-export async function getNestedFiles(directory: string, extension?: string): Promise<string[]>{
+async function getNestedFiles(directory: string, extension?: string): Promise<string[]>{
     let filesArray: string[] = []
 
     try {
@@ -60,6 +60,22 @@ class Instance {
 
     get Name(){
         return path.basename(this._Directory)
+    }
+
+    async Clone(targetDirectory?: string, overwrite?: boolean){
+        targetDirectory = targetDirectory ? targetDirectory : this._Parent
+        overwrite = overwrite != null ? overwrite : false
+
+        if (this instanceof File)
+            File.create(`${targetDirectory}${this.Name}`, await (this as File).Read())
+        else if (this instanceof Folder){
+            const childrenInstances: Instance[] = await (this as Folder).GetChildren()
+
+            for (let i = 0; childrenInstances.length; i++){
+                let instance: Instance = childrenInstances[i]
+                instance.Clone(`${targetDirectory}${instance.Name}`, false)
+            }
+        }
     }
 
     async SetName(name: string){

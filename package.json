@@ -9,7 +9,7 @@
     "clean": "rimraf dist",
     "build": "tsc",
     "public": "npm run build && npm publish",
-    "test": "npm run clean && tsc && node ./dist/index.js"
+    "test": "npm run clean && tsc && node ./dist/testing.js"
   },
   "keywords": [],
   "files": [
