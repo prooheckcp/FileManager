@@ -8,8 +8,8 @@ const __dirname = path.dirname(__filename);
 
 // cannot resolve path
 
-let exampleFolder: Folder = await Folder.create(path.join(__dirname, "ExampleFolder"))
+let exampleFolder: Folder = await Folder.create(path.join(__dirname, "..", "Test"))
+let targetFolder: Folder = await Folder.create(path.join(exampleFolder.Directory, "Target"))
+let target2Folder: Folder = await Folder.create(path.join(exampleFolder.Directory, "Target2"))
 
-await Folder.create(path.join(__dirname, "TargetFolder"))
-
-await exampleFolder.Clone(path.join(__dirname, "TargetFolder"))
+await targetFolder.Clone(target2Folder.Directory)

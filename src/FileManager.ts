@@ -68,14 +68,18 @@ class Instance {
         overwrite = overwrite != null ? overwrite : false
 
         if (this instanceof File)
-            File.create(`${targetDirectory}${this.Name}`, await (this as File).Read())
+            return File.create(path.join(targetDirectory, this.Name), await (this as File).Read())
         else if (this instanceof Folder){
+            let newFolder = await Folder.create(path.join(targetDirectory, this.Name))
             const childrenInstances: Instance[] = await (this as Folder).GetChildren()
 
-            for (let i = 0; childrenInstances.length; i++){
+            for (let i = 0; i < childrenInstances.length; i++){
                 let instance: Instance = childrenInstances[i]
-                instance.Clone(`${targetDirectory}${instance.Name}`, false)
+                let clonedInstance = await instance.Clone(newFolder.Directory, false)
+                await clonedInstance?.SetParent(newFolder)
             }
+
+            return newFolder
         }
     }
 
@@ -95,14 +99,20 @@ class Instance {
 
             if (!await FileManager.GetFolder(resolvedPath))
                 throw new Error(`There's no directory under ${resolvedPath}`);
-
         }else if(newDirectory instanceof Folder)
             resolvedPath = newDirectory.Directory
         else
             throw new Error("Invalid parent directory type.")
         
-
         let newCompletePath: string = path.join(path.resolve(resolvedPath), this.Name)
+
+        if (await FileManager.PathExists(newCompletePath)){
+            await this.SetName(`${this.Name} copy`)
+            await this.SetParent(newDirectory)
+            return
+        }
+            
+
         await rename(this._Directory, newCompletePath)
 
         this._Directory = newCompletePath
