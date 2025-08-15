@@ -63,25 +63,57 @@ class Instance {
     }
 
     // allow other instances as the target directory
-    async Clone(targetDirectory?: string, overwrite?: boolean){
-        targetDirectory = targetDirectory ? targetDirectory : this._Parent
-        overwrite = overwrite != null ? overwrite : false
-
-        if (this instanceof File)
-            return File.create(path.join(targetDirectory, this.Name), await (this as File).Read())
-        else if (this instanceof Folder){
-            let newFolder = await Folder.create(path.join(targetDirectory, this.Name))
-            const childrenInstances: Instance[] = await (this as Folder).GetChildren()
-
-            for (let i = 0; i < childrenInstances.length; i++){
-                let instance: Instance = childrenInstances[i]
-                let clonedInstance = await instance.Clone(newFolder.Directory, false)
-                await clonedInstance?.SetParent(newFolder)
+    async Clone(targetDirectory?: string, overwrite?: boolean): Promise<Instance> {
+        targetDirectory = targetDirectory ?? this._Parent
+        overwrite = overwrite ?? false
+    
+        const targetPath = path.join(targetDirectory, this.Name)
+    
+        // Handle File
+        if (this instanceof File) {
+            let finalPath = targetPath
+            if (!overwrite && await FileManager.PathExists(finalPath)) {
+                let counter = 1
+                const ext = path.extname(this.Name)
+                const base = path.basename(this.Name, ext)
+                while (await FileManager.PathExists(finalPath)) {
+                    finalPath = path.join(targetDirectory, `${base} copy${counter}${ext}`)
+                    counter++
+                }
             }
-
+            return File.create(finalPath, await this.Read())
+        }
+    
+        // Handle Folder
+        if (this instanceof Folder) {
+            let finalPath = targetPath
+            if (await FileManager.PathExists(finalPath)) {
+                if (overwrite) {
+                    await rm(finalPath, { recursive: true, force: true })
+                } else {
+                    let counter = 1
+                    while (await FileManager.PathExists(finalPath)) {
+                        finalPath = path.join(targetDirectory, `${this.Name} copy${counter}`)
+                        counter++
+                    }
+                }
+            }
+            const newFolder = await Folder.create(finalPath)
+    
+            const childrenInstances = await this.GetChildren()
+            for (const child of childrenInstances) {
+                const clonedChild = await child.Clone(newFolder.Directory, overwrite)
+                // Directly set the parent path without triggering SetParent rename logic
+                clonedChild._Parent = newFolder.Directory
+                clonedChild._Directory = path.join(newFolder.Directory, clonedChild.Name)
+            }
+    
             return newFolder
         }
+    
+        throw new Error("Cannot clone unknown instance type")
     }
+    
 
     async SetName(name: string){
         const newCompletePath = path.join(this._Parent, name)
