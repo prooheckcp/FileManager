@@ -192,6 +192,18 @@ export class Folder extends Instance {
         return filesInstances
     }
 
+    async FindFirstChild(name: string, extension?: string): Promise<Instance | null> {
+        const descendants: Instance[] = await this.GetDescendants(extension);
+    
+        for (const instance of descendants) {
+            if (instance.Name === name) {
+                return instance;
+            }
+        }
+    
+        return null;
+    }    
+
     async GetDescendants(extension?: string):Promise<Instance[]>{
         const filesPaths: string[] = await getNestedFiles(this.Directory, extension)
         const filesInstances: Instance[] = []
