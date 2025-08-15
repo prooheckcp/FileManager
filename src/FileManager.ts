@@ -26,7 +26,7 @@ async function getNestedFiles(directory: string, extension?: string): Promise<st
                 else{
                     let extName: string = path.extname(nestedDirectory)
 
-                    if (extName == extension || extName == `.${extension}`)
+                    if (nestedDirectory.endsWith(extension))
                         filesArray.push(nestedDirectory)
                 }
             }           
@@ -185,9 +185,7 @@ export class Folder extends Instance {
                 continue
             }
 
-            let extName: string = path.extname(fullFilePath)
-
-            if (extName == extension || extName == `.${extension}`)
+            if (fullFilePath.endsWith(extension))
                 filesInstances.push(newInstance)
         }
 
