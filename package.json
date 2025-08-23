@@ -1,6 +1,6 @@
 {
   "name": "@prooheckcp/file-manager",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "A wrapper for Nodes file system",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "public": "npm run build && npm publish",
     "test": "npm run clean && tsc && node ./dist/testing.js"
   },
-  "keywords": [],
+  "keywords": ["File", "Manager", "FileManager", "File System", "FS", "Folder", "Directory", "File System Manager"],
   "files": [
     "dist"
   ],
