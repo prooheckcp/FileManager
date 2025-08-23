@@ -204,6 +204,18 @@ export class Folder extends Instance {
         return null;
     }    
 
+    async FindFirstAncestor(name: string, extension?: string): Promise<Instance | null> {
+        const ancestors: Instance[] = await this.GetAncestors(extension);
+
+        for (const instance of ancestors) {
+            if (instance.Name === name) {
+                return instance;
+            }
+        }
+    
+        return null;
+    }    
+
     async GetDescendants(extension?: string):Promise<Instance[]>{
         const filesPaths: string[] = await getNestedFiles(this.Directory, extension)
         const filesInstances: Instance[] = []
@@ -219,6 +231,35 @@ export class Folder extends Instance {
 
         return filesInstances
     }
+
+    async GetAncestors(extension?: string): Promise<Instance[]> {
+        const ancestors: Instance[] = [];
+        let current: Folder | null = this.Parent;
+
+        while (current) {
+            if (extension == null || current.Directory.endsWith(extension)) {
+                ancestors.push(current);
+            }
+
+            // stop when reaching the filesystem root
+            if (current.Directory === path.parse(current.Directory).root) {
+                break;
+            }
+
+            const children = await current.GetChildren();
+            const hasLunarFile = children.some(
+                child => child instanceof File && child.Name.startsWith("lunar")
+            )
+
+            if (hasLunarFile)
+                break
+
+            current = current.Parent;
+        }
+
+        return ancestors;
+    }
+
 
     async FindFirstFolder(folderName: string): Promise<Folder | null>{
         return await FileManager.GetFolder(path.join(this.Directory, folderName))
