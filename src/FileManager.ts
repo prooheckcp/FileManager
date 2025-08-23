@@ -192,6 +192,27 @@ export class Folder extends Instance {
         return filesInstances
     }
 
+    async FindFileInAncestors(fileName: string): Promise<File | null> {
+        let current: Folder | null = this.Parent;
+
+        while (current) {
+            const children = await current.GetChildren();
+            for (const child of children) {
+                if (child instanceof File && child.Name === fileName) {
+                    return child;
+                }
+            }
+
+            // Stop if we reach the filesystem root
+            if (current.Directory === path.parse(current.Directory).root) break;
+
+            current = current.Parent;
+        }
+
+        return null;
+    }
+
+
     async FindFirstChild(name: string, extension?: string): Promise<Instance | null> {
         const descendants: Instance[] = await this.GetDescendants(extension);
     
