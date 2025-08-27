@@ -40,7 +40,7 @@ async function getNestedFiles(directory: string, extension?: string): Promise<st
     return filesArray
 }
 
-class Instance {
+export eclass Instance {
     // Private
     private _Directory: string = ""
     private _Parent: string
